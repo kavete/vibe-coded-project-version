@@ -1,0 +1,93 @@
+{% extends 'data/base.html' %}
+{% block title %}Ward {{ ward_name }} Details{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Ward {{ ward_name }}</h1>
+            <p class="text-gray-600">Real-time monitoring dashboard</p>
+        </div>
+        <div class="flex flex-col md:flex-row gap-4 mt-4 md:mt-0">
+            <a href="/" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Dashboard
+            </a>
+            <select id="timeRange" class="select select-bordered">
+                <option value="1">Last 1 hour</option>
+                <option value="6">Last 6 hours</option>
+                <option value="24" selected>Last 24 hours</option>
+                <option value="72">Last 3 days</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Status Cards with HTMX auto-refresh -->
+    <div id="statusCards" 
+         hx-get="{% url 'htmx_ward_condition' ward_slug %}" 
+         hx-trigger="load, every 3s" 
+         hx-swap="innerHTML">
+        <!-- Initial load will be replaced -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Temperature Chart -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-red-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Temperature Trends
+                </h2>
+                <div class="w-full h-80">
+                    <canvas id="temperatureChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Humidity Chart -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V7M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2M8 7h8" />
+                    </svg>
+                    Humidity Trends
+                </h2>
+                <div class="w-full h-80">
+                    <canvas id="humidityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Vitals Section -->
+    <div class="mt-12">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Patient Vitals</h2>
+        <div id="patientVitals" 
+             class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+             hx-get="{% url 'htmx_patient_vitals' ward_slug %}" 
+             hx-trigger="load, every 10s" 
+             hx-swap="innerHTML">
+            <!-- Patient vital cards will be dynamically populated -->
+            <div class="col-span-full text-center text-gray-500">Loading patient vitals...</div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+.htmx-request {
+    /* Remove all flicker/opacity/background changes for polling updates */
+    opacity: 1 !important;
+    background: none !important;
+}
+</style>
+
+{% endblock %}

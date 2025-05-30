@@ -1,0 +1,96 @@
+{% extends 'data/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<!-- Hero Section -->
+<div class="hero bg-gradient-to-br from-primary to-primary-focus text-primary-content rounded-xl mb-8 shadow-xl">
+  <div class="hero-content flex-col lg:flex-row justify-between w-full py-8">    <div class="text-white">
+      <h1 class="text-5xl font-bold mb-2 text-white">Remote Patient Monitoring</h1>
+      <p class="py-2 text-xl text-white">Monitor ward conditions and patient vitals in real time.</p>
+      <div class="flex items-center mt-4">
+        <div id="connectionIndicator" class="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
+        <span id="connectionStatus" class="text-lg text-white">System Online</span>
+      </div>
+    </div>    <div id="dashboardStats"
+         hx-get="{% url 'htmx_dashboard_stats' %}"
+         hx-trigger="load, every 30s"
+         hx-swap="innerHTML">
+      <!-- Initial stats will be loaded here -->
+      <div class="stats shadow stats-vertical md:stats-horizontal bg-base-100 text-base-content">
+        <div class="stat">
+          <div class="stat-title">Loading...</div>
+          <div class="stat-value">--</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="flex flex-wrap gap-4 mb-8">
+  <button class="btn btn-primary"
+          hx-get="{% url 'htmx_ward_conditions' %}"
+          hx-target="#wardGrid"
+          hx-swap="innerHTML"
+          hx-indicator="#refresh-indicator">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+    </svg>
+    <span id="refresh-indicator" class="htmx-indicator loading loading-spinner loading-sm"></span>
+    Refresh Data
+  </button>
+</div>
+
+<!-- Ward Overview -->
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-3xl font-bold">Ward Overview</h1>
+  <div class="text-sm text-gray-500">
+    Last updated: <span id="lastUpdate">{% now "Y-m-d H:i:s" %}</span>
+  </div>
+</div>
+
+<!-- Ward Grid with HTMX auto-refresh -->
+<div id="wardGrid"
+     class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+     hx-get="{% url 'htmx_ward_conditions' %}"
+     hx-trigger="load, every 5s[#autoRefresh:checked]"
+     hx-swap="innerHTML">
+  {% include 'data/partials/ward_conditions.html' %}
+</div>
+
+<!-- Add some custom CSS for HTMX animations -->
+<style>
+.htmx-indicator {
+  opacity: 0;
+  transition: opacity 200ms ease-in;
+}
+.htmx-request .htmx-indicator {
+  opacity: 1;
+}
+.htmx-request.htmx-indicator {
+  opacity: 1;
+}
+
+/* Loading state for ward cards */
+.htmx-request {
+  /* Remove all flicker/opacity/overlay for polling updates */
+  opacity: 1 !important;
+  background: none !important;
+  /* position: static; */
+}
+
+.htmx-request::after {
+  display: none !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Update last updated time after HTMX content loads
+    document.body.addEventListener('htmx:afterSettle', function(event) {
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+    });
+});
+</script>
+
+{% endblock %}
