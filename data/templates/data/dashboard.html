@@ -40,6 +40,29 @@
   </button>
 </div>
 
+<!-- Real-time Charts Section -->
+<div class="mb-8">
+  <h2 class="text-2xl font-bold mb-6">Real-time Analytics</h2>
+  <div id="dashboardCharts"
+       hx-get="{% url 'htmx_dashboard_charts' %}"
+       hx-trigger="load"
+       hx-swap="innerHTML">
+    <!-- Charts will be loaded here -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <div class="text-center text-gray-500">Loading charts...</div>
+        </div>
+      </div>
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <div class="text-center text-gray-500">Loading charts...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Ward Overview -->
 <div class="flex justify-between items-center mb-6">
   <h1 class="text-3xl font-bold">Ward Overview</h1>

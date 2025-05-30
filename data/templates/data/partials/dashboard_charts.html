@@ -1,0 +1,125 @@
+<!-- Dashboard Charts Partial -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Real-time Patient Activity Chart -->
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <h3 class="card-title text-lg mb-4">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                Recent Patient Activity
+            </h3>
+            
+            <div id="patient-activity-chart" class="w-full h-64"></div>
+            
+            <script>
+                function updatePatientActivityChart() {
+                    // Simulated real-time data for demonstration
+                    const now = new Date();
+                    const timestamps = [];
+                    const heartRates = [];
+                    
+                    for (let i = 10; i >= 0; i--) {
+                        const time = new Date(now.getTime() - i * 60000); // 1 minute intervals
+                        timestamps.push(time.toLocaleTimeString('en-US', {hour12: false, hour: '2-digit', minute: '2-digit'}));
+                        heartRates.push(Math.floor(Math.random() * 40) + 60); // Random heart rates 60-100
+                    }
+                    
+                    const trace = {
+                        x: timestamps,
+                        y: heartRates,
+                        type: 'scatter',
+                        mode: 'lines+markers',
+                        name: 'Average Heart Rate',
+                        line: { color: '#8b5cf6', width: 3 },
+                        marker: { size: 6 }
+                    };
+                    
+                    const layout = {
+                        autosize: true,
+                        margin: { l: 50, r: 30, t: 20, b: 50 },
+                        xaxis: {
+                            title: 'Time',
+                            tickangle: -45
+                        },
+                        yaxis: {
+                            title: 'Heart Rate (bpm)',
+                            range: [50, 120]
+                        },
+                        showlegend: false
+                    };
+                    
+                    const config = {
+                        responsive: true,
+                        displayModeBar: false
+                    };
+                    
+                    Plotly.newPlot('patient-activity-chart', [trace], layout, config);
+                }
+                
+                // Initial load and update every 30 seconds
+                updatePatientActivityChart();
+                setInterval(updatePatientActivityChart, 30000);
+            </script>
+        </div>
+    </div>
+    
+    <!-- Ward Temperature Overview -->
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <h3 class="card-title text-lg mb-4">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Ward Temperature Overview
+            </h3>
+            
+            <div id="ward-temperature-chart" class="w-full h-64"></div>
+            
+            <script>
+                function updateWardTemperatureChart() {
+                    // Simulated ward temperature data
+                    const wards = ['ICU', 'Emergency', 'General', 'Surgery'];
+                    const temperatures = wards.map(() => Math.round((Math.random() * 4 + 20) * 10) / 10); // 20-24°C
+                    
+                    const trace = {
+                        x: wards,
+                        y: temperatures,
+                        type: 'bar',
+                        marker: {
+                            color: temperatures.map(temp => {
+                                if (temp < 21) return '#3b82f6';
+                                if (temp < 23) return '#10b981';
+                                return '#f59e0b';
+                            })
+                        }
+                    };
+                    
+                    const layout = {
+                        autosize: true,
+                        margin: { l: 50, r: 30, t: 20, b: 50 },
+                        xaxis: {
+                            title: 'Ward'
+                        },
+                        yaxis: {
+                            title: 'Temperature (°C)',
+                            range: [18, 26]
+                        },
+                        showlegend: false
+                    };
+                    
+                    const config = {
+                        responsive: true,
+                        displayModeBar: false
+                    };
+                    
+                    Plotly.newPlot('ward-temperature-chart', [trace], layout, config);
+                }
+                
+                // Initial load and update every 45 seconds
+                updateWardTemperatureChart();
+                setInterval(updateWardTemperatureChart, 45000);
+            </script>
+        </div>
+    </div>
+</div>

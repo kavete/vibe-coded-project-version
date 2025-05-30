@@ -32,51 +32,45 @@
          hx-swap="innerHTML">
         <!-- Initial load will be replaced -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></div>
-    </div>
-
-    <!-- Charts -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Temperature Chart -->
-        <div class="card bg-base-100 shadow-xl">
-            <div class="card-body">
-                <h2 class="card-title text-red-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    Temperature Trends
-                </h2>
-                <div class="w-full h-80">
-                    <canvas id="temperatureChart"></canvas>
+    </div>    <!-- Real-time Ward Conditions Chart -->
+    <div class="mb-8">
+        <div id="wardConditionsChart"
+             hx-get="{% url 'htmx_ward_conditions_chart' ward_slug %}"
+             hx-trigger="load"
+             hx-swap="innerHTML">
+            <!-- Ward conditions chart will be loaded here -->
+            <div class="card bg-base-100 shadow-lg">
+                <div class="card-body">
+                    <div class="text-center text-gray-500">Loading environmental conditions chart...</div>
                 </div>
             </div>
         </div>
-
-        <!-- Humidity Chart -->
-        <div class="card bg-base-100 shadow-xl">
-            <div class="card-body">
-                <h2 class="card-title text-blue-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V7M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2M8 7h8" />
-                    </svg>
-                    Humidity Trends
-                </h2>
-                <div class="w-full h-80">
-                    <canvas id="humidityChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Patient Vitals Section -->
+    </div>    <!-- Patient Vitals Section -->
     <div class="mt-12">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Patient Vitals</h2>
         <div id="patientVitals" 
-             class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+             class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8"
              hx-get="{% url 'htmx_patient_vitals' ward_slug %}" 
              hx-trigger="load, every 10s" 
              hx-swap="innerHTML">
             <!-- Patient vital cards will be dynamically populated -->
             <div class="col-span-full text-center text-gray-500">Loading patient vitals...</div>
+        </div>
+          <!-- Patient Vitals Charts Section -->
+        <div class="mt-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Patient Vital Trends</h3>
+            <div id="patientChartsContainer"
+                 hx-get="{% url 'htmx_patient_charts_multiple' ward_slug %}"
+                 hx-trigger="load"
+                 hx-swap="innerHTML">
+                <!-- Patient charts will be loaded dynamically via HTMX -->
+                <div class="text-center text-gray-500 py-8">
+                    <svg class="w-8 h-8 mx-auto mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Loading patient charts...
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -1,0 +1,126 @@
+<!-- Multiple Patient Charts Partial -->
+<div class="space-y-6">
+    {% for vital in patient_vitals %}
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <h3 class="card-title text-lg mb-4">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                {{ vital.patient.name }} - Vital Signs Trends (24h)
+            </h3>
+            
+            <div id="patient-vitals-chart-{{ vital.patient.id }}" class="w-full h-80"></div>
+            
+            <script>
+                // Fetch and update chart data for patient {{ vital.patient.id }}
+                function updatePatientVitalsChart{{ vital.patient.id }}() {
+                    fetch('{% url "htmx_patient_vitals_chart_data" vital.patient.id %}')
+                        .then(response => response.json())
+                        .then(data => {
+                            const traces = [
+                                {
+                                    x: data.timestamps,
+                                    y: data.heart_rates,
+                                    type: 'scatter',
+                                    mode: 'lines+markers',
+                                    name: 'Heart Rate (bpm)',
+                                    line: { color: '#ef4444', width: 2 },
+                                    marker: { size: 4 },
+                                    yaxis: 'y'
+                                },
+                                {
+                                    x: data.timestamps,
+                                    y: data.temperatures,
+                                    type: 'scatter',
+                                    mode: 'lines+markers',
+                                    name: 'Temperature (°C)',
+                                    line: { color: '#f97316', width: 2 },
+                                    marker: { size: 4 },
+                                    yaxis: 'y2'
+                                },
+                                {
+                                    x: data.timestamps,
+                                    y: data.oxygen_saturations,
+                                    type: 'scatter',
+                                    mode: 'lines+markers',
+                                    name: 'O2 Saturation (%)',
+                                    line: { color: '#22c55e', width: 2 },
+                                    marker: { size: 4 },
+                                    yaxis: 'y3'
+                                }
+                            ];
+                            
+                            const layout = {
+                                autosize: true,
+                                margin: { l: 60, r: 80, t: 20, b: 60 },
+                                xaxis: {
+                                    title: 'Time',
+                                    tickangle: -45,
+                                    gridcolor: '#f3f4f6'
+                                },
+                                yaxis: {
+                                    title: 'Heart Rate (bpm)',
+                                    titlefont: { color: '#ef4444' },
+                                    tickfont: { color: '#ef4444' },
+                                    side: 'left',
+                                    gridcolor: '#f3f4f6'
+                                },
+                                yaxis2: {
+                                    title: 'Temperature (°C)',
+                                    titlefont: { color: '#f97316' },
+                                    tickfont: { color: '#f97316' },
+                                    overlaying: 'y',
+                                    side: 'right',
+                                    position: 0.85
+                                },
+                                yaxis3: {
+                                    title: 'O2 Saturation (%)',
+                                    titlefont: { color: '#22c55e' },
+                                    tickfont: { color: '#22c55e' },
+                                    overlaying: 'y',
+                                    side: 'right',
+                                    position: 1
+                                },
+                                showlegend: true,
+                                legend: {
+                                    x: 0,
+                                    y: 1,
+                                    bgcolor: 'rgba(255,255,255,0.9)',
+                                    bordercolor: '#e5e7eb',
+                                    borderwidth: 1
+                                },
+                                plot_bgcolor: '#ffffff',
+                                paper_bgcolor: '#ffffff'
+                            };
+                            
+                            const config = {
+                                responsive: true,
+                                displayModeBar: false
+                            };
+                            
+                            Plotly.newPlot('patient-vitals-chart-{{ vital.patient.id }}', traces, layout, config);
+                        })
+                        .catch(error => {
+                            console.error('Error updating patient chart {{ vital.patient.id }}:', error);
+                            document.getElementById('patient-vitals-chart-{{ vital.patient.id }}').innerHTML = 
+                                '<div class="text-center text-red-500 py-8">Error loading chart data</div>';
+                        });
+                }
+                
+                // Initial load
+                updatePatientVitalsChart{{ vital.patient.id }}();
+                
+                // Update every 60 seconds
+                setInterval(updatePatientVitalsChart{{ vital.patient.id }}, 60000);
+            </script>
+        </div>
+    </div>
+    {% empty %}
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <div class="text-center text-gray-500">No patient data available for charts.</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>

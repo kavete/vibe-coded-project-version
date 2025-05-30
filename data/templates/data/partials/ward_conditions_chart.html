@@ -1,0 +1,85 @@
+<!-- Ward Conditions Chart Partial -->
+<div class="card bg-base-100 shadow-lg">
+    <div class="card-body">
+        <h3 class="card-title text-lg mb-4">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+            </svg>
+            Ward {{ ward.name }} - Environmental Conditions (24h)
+        </h3>
+        
+        <div id="{{ chart_id }}" class="w-full h-80"></div>
+        
+        <script>
+            // Fetch and update chart data for ward conditions
+            function updateWardConditionsChart{{ ward.slug|title }}() {
+                fetch('{% url "htmx_ward_conditions_chart_data" ward.slug %}')
+                    .then(response => response.json())
+                    .then(data => {
+                        const traces = [
+                            {
+                                x: data.timestamps,
+                                y: data.temperatures,
+                                type: 'scatter',
+                                mode: 'lines+markers',
+                                name: 'Temperature (°C)',
+                                line: { color: '#dc2626' },
+                                yaxis: 'y'
+                            },
+                            {
+                                x: data.timestamps,
+                                y: data.humidity_levels,
+                                type: 'scatter',
+                                mode: 'lines+markers',
+                                name: 'Humidity (%)',
+                                line: { color: '#2563eb' },
+                                yaxis: 'y2'
+                            }
+                        ];
+                        
+                        const layout = {
+                            autosize: true,
+                            margin: { l: 60, r: 60, t: 20, b: 60 },
+                            xaxis: {
+                                title: 'Time',
+                                tickangle: -45
+                            },
+                            yaxis: {
+                                title: 'Temperature (°C)',
+                                titlefont: { color: '#dc2626' },
+                                tickfont: { color: '#dc2626' },
+                                side: 'left'
+                            },
+                            yaxis2: {
+                                title: 'Humidity (%)',
+                                titlefont: { color: '#2563eb' },
+                                tickfont: { color: '#2563eb' },
+                                overlaying: 'y',
+                                side: 'right'
+                            },
+                            showlegend: true,
+                            legend: {
+                                x: 0,
+                                y: 1,
+                                bgcolor: 'rgba(255,255,255,0.8)'
+                            }
+                        };
+                        
+                        const config = {
+                            responsive: true,
+                            displayModeBar: false
+                        };
+                        
+                        Plotly.newPlot('{{ chart_id }}', traces, layout, config);
+                    })
+                    .catch(error => console.error('Error updating chart:', error));
+            }
+            
+            // Initial load
+            updateWardConditionsChart{{ ward.slug|title }}();
+            
+            // Update every 30 seconds
+            setInterval(updateWardConditionsChart{{ ward.slug|title }}, 30000);
+        </script>
+    </div>
+</div>
